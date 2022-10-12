@@ -1,8 +1,13 @@
+puts "=========================="
+puts "WILL YOU NEED AN UMBRELLA TODAY?" 
+puts "=========================="
+puts " "
+
 p "Hi! Where are you located?"
 
 user_location = gets.chomp
 
-p user_location
+p "Checking the weather at #{user_location}..."
 
 gmaps_token = ENV.fetch("GMAPS_TOKEN")
 
@@ -19,8 +24,7 @@ lat_long_hash = parsed_data["results"][0]["geometry"]["location"]
 latitude = lat_long_hash["lat"]
 longitude = lat_long_hash["lng"]
 
-p latitude
-p longitude
+p "Your coordinates are #{latitude}, #{longitude}."
 
 dark_sky_token = ENV.fetch("DARK_SKY_TOKEN")
 
@@ -34,4 +38,22 @@ weather_now = parsed_sky_data["currently"]
 temp_now = weather_now["temperature"]
 summary_now = weather_now["summary"]
 
-p "Currently, the temperature is #{temp_now} and there is #{summary_now}"
+p "It is currently #{temp_now.to_i} degrees F"
+p "Next hour: #{summary_now.capitalize} for the hour."
+
+hourly_data = parsed_sky_data["hourly"]["data"]
+
+rain = 0
+12.times do |index|
+  rain_prob = hourly_data[index]["precipProbability"]
+  if rain_prob > 0.1
+    rain = rain + 1
+    p "In #{index} hours, there is a #{(rain_prob.to_f * 100.0).to_i}% chance of precipitation."
+  end
+end
+
+if rain > 0
+  p "You might want to carry an umbrella!"
+else
+  p "You probably won't need an umbrella today."
+end
